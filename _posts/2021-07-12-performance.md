@@ -238,10 +238,10 @@ FROM (
 #### 业绩走势-认购
 ![](/etl-docs/img/IMG_1702.PNG)
 
-##### 签约
+#### 业绩走势-签约
 ![](/etl-docs/img/IMG_1703.PNG)
 
-##### 业绩走势-回款
+#### 业绩走势-回款
 ![](/etl-docs/img/IMG_1704.PNG)
 
 #### 销售占比
@@ -261,71 +261,87 @@ FROM (
 
 ![](/etl-docs/img/IMG_1708.PNG)
 
-##### 区域-周-认购
+#### 区域-周-认购
 
 ![](/etl-docs/img/IMG_1709.PNG)
 
-##### 区域-周-签约
+#### 区域-周-签约
 
 ![](/etl-docs/img/IMG_1710.PNG)
 
-##### 区域-周-回款
+#### 区域-周-回款
 
 ![](/etl-docs/img/IMG_1711.PNG)
 
-##### 区域-月-认购
+#### 区域-月-认购
 
 ![](/etl-docs/img/IMG_1712.PNG)
 
-##### 区域-月-签约
+#### 区域-月-签约
 
 ![](/etl-docs/img/IMG_1713.PNG)
 
-##### 区域-月-回款
+#### 区域-月-回款
 
 ![](/etl-docs/img/IMG_1714.PNG)
 
-##### 区域-年-认购
+#### 区域-年-认购
 
 ![](/etl-docs/img/IMG_1715.PNG)
 
-##### 区域-年-签约
+#### 区域-年-签约
 
 ![](/etl-docs/img/IMG_1716.PNG)
 
-##### 区域-年-回款
+#### 区域-年-回款
 
 ![](/etl-docs/img/IMG_1717.PNG)
 
-#### 项目
+#### 项目-日-认购
 
-##### 日
-**认购**
 ![](/etl-docs/img/IMG_1718.PNG)
-**签约**
-![](/etl-docs/img/IMG_1719.PNG)
-**回款**
-![](/etl-docs/img/IMG_1720.PNG)
-##### 周
-**认购**
-![](/etl-docs/img/IMG_1721.PNG)
-**签约**
-![](/etl-docs/img/IMG_1722.PNG)
-**回款**
-![](/etl-docs/img/IMG_1723.PNG)
-##### 月
-**认购**
-![](/etl-docs/img/IMG_1724.PNG)
-**签约**
-![](/etl-docs/img/IMG_1725.PNG)
-**回款**
-![](/etl-docs/img/IMG_1726.PNG)
-##### 年
-**认购**
-![](/etl-docs/img/IMG_1727.PNG)
-**签约**
-![](/etl-docs/img/IMG_1728.PNG)
-**回款**
-![](/etl-docs/img/IMG_1729.PNG)
 
+#### 项目-日-签约
+
+![](/etl-docs/img/IMG_1719.PNG)
+
+#### 项目-日-回款
+
+![](/etl-docs/img/IMG_1720.PNG)
+
+#### 项目-周-认购
+
+![](/etl-docs/img/IMG_1721.PNG)
+
+#### 项目-周-签约
+
+![](/etl-docs/img/IMG_1722.PNG)
+
+#### 项目-周-回款
+
+![](/etl-docs/img/IMG_1723.PNG)
+
+#### 项目-月-认购
+
+![](/etl-docs/img/IMG_1724.PNG)
+
+#### 项目-月-签约
+
+![](/etl-docs/img/IMG_1725.PNG)
+
+#### 项目-月-回款
+
+![](/etl-docs/img/IMG_1726.PNG)
+
+#### 项目-年-认购
+
+![](/etl-docs/img/IMG_1727.PNG)
+
+#### 项目-年-签约
+
+![](/etl-docs/img/IMG_1728.PNG)
+
+#### 项目-年-回款
+
+![](/etl-docs/img/IMG_1729.PNG)
 
