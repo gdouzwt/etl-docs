@@ -22,8 +22,8 @@
 twitter_username: gdouzwt
 github_username:  gdouzwt
 permalink: pretty
-baseurl: "/"
-url: "https://gdouzwt.github.io/etl-docs/"
+#baseurl: "/etl-docs"
+url: "https://gdouzwt.github.io/"
 
 # Build settings
 theme: minima
