@@ -50,7 +50,7 @@ FROM (
 
 #### 月
 
-![](../img/IMG_1700.PNG)
+![](/img/IMG_1700.PNG)
 
 ```sql
 SELECT aa.subscribingNum subscribingNum,  -- 认购套数
