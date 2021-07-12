@@ -238,34 +238,80 @@ FROM (
 #### 业绩走势
 
 ##### 认购
+![](/etl-docs/img/IMG_1702.PNG)
 
 ##### 签约
+![](/etl-docs/img/IMG_1703.PNG)
 
 ##### 回款
+![](/etl-docs/img/IMG_1704.PNG)
 
 #### 销售占比
+![](/etl-docs/img/IMG_1705.PNG)
 
 ### 业绩排名
 
 #### 区域
 
 ##### 日
-
+**认购**
+![](/etl-docs/img/IMG_1706.PNG)
+**签约**
+![](/etl-docs/img/IMG_1707.PNG)
+**回款**
+![](/etl-docs/img/IMG_1708.PNG)
 ##### 周
-
+**认购**
+![](/etl-docs/img/IMG_1709.PNG)
+**签约**
+![](/etl-docs/img/IMG_1710.PNG)
+**回款**
+![](/etl-docs/img/IMG_1711.PNG)
 ##### 月
+**认购**
+![](/etl-docs/img/IMG_1712.PNG)
+**签约**
+![](/etl-docs/img/IMG_1713.PNG)
+**回款**
+![](/etl-docs/img/IMG_1714.PNG)
 
 ##### 年
+**认购**
+![](/etl-docs/img/IMG_1715.PNG)
+**签约**
+![](/etl-docs/img/IMG_1716.PNG)
+**回款**
+![](/etl-docs/img/IMG_1717.PNG)
 
 #### 项目
 
 ##### 日
-
+**认购**
+![](/etl-docs/img/IMG_1718.PNG)
+**签约**
+![](/etl-docs/img/IMG_1719.PNG)
+**回款**
+![](/etl-docs/img/IMG_1720.PNG)
 ##### 周
-
+**认购**
+![](/etl-docs/img/IMG_1721.PNG)
+**签约**
+![](/etl-docs/img/IMG_1722.PNG)
+**回款**
+![](/etl-docs/img/IMG_1723.PNG)
 ##### 月
-
+**认购**
+![](/etl-docs/img/IMG_1724.PNG)
+**签约**
+![](/etl-docs/img/IMG_1725.PNG)
+**回款**
+![](/etl-docs/img/IMG_1726.PNG)
 ##### 年
-
+**认购**
+![](/etl-docs/img/IMG_1727.PNG)
+**签约**
+![](/etl-docs/img/IMG_1728.PNG)
+**回款**
+![](/etl-docs/img/IMG_1729.PNG)
 
 
