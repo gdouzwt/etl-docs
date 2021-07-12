@@ -233,7 +233,7 @@ FROM (
 
 ![](/etl-docs/img/IMG_1701.PNG)
 
-```SQL
+```sql
 SELECT aa.subscribingNum subscribingNum,
     aa.subscribingAmount subscribingAmount,
     aa.linbaoNum linbaoNum,
