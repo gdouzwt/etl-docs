@@ -8,7 +8,7 @@ date:   2021-07-12 11:19:52 +0800
 
 #### 日
 
-![](img/IMG_1698.PNG)
+![](/etl-docs/img/IMG_1698.PNG)
 
 ```SQL
 SELECT *
@@ -29,7 +29,7 @@ FROM (
 
 #### 周
 
-![](img/IMG_1699.PNG)
+![](/etl-docs/img/IMG_1699.PNG)
 
 ```SQL
 SELECT *
@@ -50,7 +50,7 @@ FROM (
 
 #### 月
 
-![](/img/IMG_1700.PNG)
+![](/etl-docs/img/IMG_1700.PNG)
 
 ```sql
 SELECT aa.subscribingNum subscribingNum,  -- 认购套数
@@ -231,7 +231,7 @@ FROM (
 
 #### 年
 
-![](../img/IMG_1701.PNG)
+![](/etl-docs/img/IMG_1701.PNG)
 
 ### 业绩分析
 
