@@ -903,7 +903,7 @@ WHERE project_code IN (
         'P0118',
         'P0120',
         'P0123',
-        'P012'4
+        'P0124'
     );
 ```
 
@@ -1029,17 +1029,241 @@ ORDER BY receivedMoney DESC;
 
 ![](/etl-docs/img/IMG_1715.PNG)
 
+```sql
+SELECT ma.pk_area                              areacode,
+       ma.`areaname`                           areaname,
+       SUM(DISTINCT a.subscribingNum)          subscribingNum,
+       SUM(DISTINCT a.subscribingAmount)       subscribingAmount,
+       SUM(DISTINCT a.contractNum)             contractNum,
+       SUM(DISTINCT a.contractAmount)          contractAmount,
+       SUM(DISTINCT a.contractAmountN)         contractAmountN,
+       SUM(DISTINCT a.contractNumN)            contractNumN,
+       SUM(DISTINCT a.receivedMoney)           receivedMoney,
+       SUM(DISTINCT a.receivedMoneyN)          receivedMoneyN,
+       SUM(DISTINCT a.subscribingAmounN)       subscribingAmounN,
+       SUM(DISTINCT a.gonghuoNum)              gonghuoNum,
+       SUM(DISTINCT a.gonghuoAmount)           gonghuoAmount,
+       SUM(DISTINCT b.targetSubscribingAmount) targetSubscribingAmount,
+       SUM(DISTINCT b.targetContractAmount)    targetContractAmount,
+       SUM(DISTINCT b.targetReceivedMoney)     targetReceivedMoney,
+       ap.shidi_profit_p                       profitsRate,
+       ap.shidi_profit                         profits,
+       SUM(DISTINCT c.targetGonghuoAmount)     targetGonghuoAmount
+FROM (SELECT id_project FROM v_md_projectinfo) e
+         LEFT JOIN (SELECT projectId,
+                           SUM(subscribingNum)      AS subscribingNum,
+                           SUM(subscribingAmount)   AS subscribingAmount,
+                           SUM(contractNum)         AS contractNum,
+                           SUM(contractAmount)      AS contractAmount,
+                           SUM(contractAmount_n)    AS contractAmountN,
+                           SUM(contractNum_n)       AS contractNumN,
+                           SUM(receivedMoney)       AS receivedMoney,
+                           SUM(receivedMoney_n)     AS receivedMoneyN,
+                           SUM(subscribingAmount_n) AS subscribingAmounN,
+                           SUM(gonghuoAmount)       AS gonghuoAmount,
+                           SUM(gonghuoNum)          AS gonghuoNum
+                    FROM jsczb_year_report
+                    WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                    GROUP BY projectId) a ON a.projectId = e.id_project
+         LEFT JOIN (SELECT project_id,
+                           SUM(subscribing_amount) targetSubscribingAmount,
+                           SUM(contract_amount)    targetContractAmount,
+                           SUM(received_money)     targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) b ON e.id_project = b.project_id
+         LEFT JOIN (SELECT SUM(gonghuo_amount) targetGonghuoAmount, id
+                    FROM jsczb_gonghuo_target_month
+                    WHERE LEFT(`month`, 4) = DATE_FORMAT('2021-07-13', "%Y")
+                    GROUP BY id) c ON e.id_project = c.id
+         LEFT JOIN (SELECT id_project, belong_area, project_name FROM md_projectinfo) d ON e.id_project = d.id_project
+         LEFT JOIN md_area ma ON ma.pk_area = d.belong_area
+         LEFT JOIN (SELECT *
+                    FROM jsczb_profit_class_lv3
+                    WHERE report_month =
+                          (SELECT max(report_month) FROM jsczb_profit_class_lv3 WHERE report_year = year('2021-07-13'))) ap
+                   ON ap.id_lv3 = ma.pk_area
+GROUP BY ma.pk_area;
+```
+
+```sql
+SELECT vmp.project_name projectName,
+    vmp.project_code projectCode,
+    vmp.id_project idProject,
+    vmp.belong_area belongArea,
+    vmp.belong_provinces belongProvinces,
+    vmp.belong_city belongCity,
+    vma.areaname areaName
+FROM v_md_projectinfo vmp
+    LEFT JOIN v_md_area vma ON vma.areacode = vmp.belong_area
+WHERE project_code IN (
+        'P0001',
+        'P0002',
+        'P0003',
+        'P0004',
+        'P0005',
+        'P0006',
+        'P0007',
+        'P0009',
+        'P0010',
+        'P0011',
+        'P0012',
+        'P0018',
+        'P0019',
+        'P0026',
+        'P0046',
+        'P0048',
+        'P0062',
+        'P0063',
+        'P0064',
+        'P0065',
+        'P0067',
+        'P0071',
+        'P0076',
+        'P0084',
+        'P0085',
+        'P0086',
+        'P0087',
+        'P0089',
+        'P0090',
+        'P0091',
+        'P0093',
+        'P0094',
+        'P0095',
+        'P0096',
+        'P0097',
+        'P0098',
+        'P0099',
+        'P0100',
+        'P0106',
+        'P0109',
+        'P0110',
+        'P0111',
+        'P0112',
+        'P0113',
+        'P0117',
+        'P0118',
+        'P0120',
+        'P0123',
+        'P0124'
+    );
+```
+
+```sql
+SELECT t.md_area_code FROM md_area_uc_code t WHERE t.is_enabled = 1 AND t.uc_code IN ('10001')
+```
+
+```sql
+-- 业绩排名-年-区域-认购
+SELECT belong_area  AS areaCode,
+       id_project   AS projectId,
+       project_name AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM v_md_projectinfo mp
+         RIGHT JOIN (SELECT projectId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY projectId) jmr ON mp.id_project = jmr.projectId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+GROUP BY mp.id_project, belong_area
+ORDER BY subscribingAmount DESC;
+```
+
 ---
 
 #### 区域-年-签约
 
 ![](/etl-docs/img/IMG_1716.PNG)
 
+```sql
+SELECT belong_area  AS areaCode,
+       id_project   AS projectId,
+       project_name AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM v_md_projectinfo mp
+         RIGHT JOIN (SELECT projectId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY projectId) jmr ON mp.id_project = jmr.projectId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+GROUP BY mp.id_project, belong_area
+ORDER BY contractAmount DESC;
+```
+
 ---
 
 #### 区域-年-回款
 
 ![](/etl-docs/img/IMG_1717.PNG)
+
+```sql
+SELECT belong_area  AS areaCode,
+       id_project   AS projectId,
+       project_name AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM v_md_projectinfo mp
+         RIGHT JOIN (SELECT projectId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY projectId) jmr ON mp.id_project = jmr.projectId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+GROUP BY mp.id_project, belong_area
+ORDER BY receivedMoney DESC;
+```
 
 ---
 
@@ -1328,11 +1552,107 @@ ORDER BY receivedMoney DESC;
 
 ![](/etl-docs/img/IMG_1727.PNG)
 
+```sql
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+ORDER BY subscribingAmount DESC;
+```
+
 #### 项目-年-签约
 
 ![](/etl-docs/img/IMG_1728.PNG)
 
+```sql
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+ORDER BY contractAmount DESC;
+```
+
 #### 项目-年-回款
 
 ![](/etl-docs/img/IMG_1729.PNG)
+
+```sql
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_year_report
+                     WHERE reportDate = DATE_FORMAT('2021-07-13', "%Y-%m-%d")
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_year
+                    WHERE `year` = YEAR('2021-07-13')
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+ORDER BY receivedMoney DESC;
+```
 
