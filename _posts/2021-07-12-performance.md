@@ -1548,6 +1548,8 @@ FROM bijsc_producttype bp
 ORDER BY receivedMoney DESC;
 ```
 
+---
+
 #### 项目-年-认购
 
 ![](/etl-docs/img/IMG_1727.PNG)
@@ -1584,6 +1586,8 @@ FROM bijsc_producttype bp
 ORDER BY subscribingAmount DESC;
 ```
 
+---
+
 #### 项目-年-签约
 
 ![](/etl-docs/img/IMG_1728.PNG)
@@ -1619,6 +1623,8 @@ FROM bijsc_producttype bp
                     GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
 ORDER BY contractAmount DESC;
 ```
+
+---
 
 #### 项目-年-回款
 
