@@ -738,12 +738,45 @@ FROM v_md_projectinfo mp
                     WHERE YEARWEEK(`month`, 1) = '202128'
                     GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
 GROUP BY mp.id_project, belong_area
-ORDER BY subscribingAmount DESC;
+ORDER BY contractAmount DESC;
 ```
 
 #### 区域-周-回款
 
 ![](/etl-docs/img/IMG_1711.PNG)
+
+```sql
+SELECT belong_area  AS areaCode,
+       id_project   AS projectId,
+       project_name AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM v_md_projectinfo mp
+         RIGHT JOIN (SELECT projectId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_daily_report
+                     WHERE YEARWEEK(reportDate, 1) = '202128'
+                     GROUP BY projectId) jmr ON mp.id_project = jmr.projectId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_month
+                    WHERE YEARWEEK(`month`, 1) = '202128'
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+GROUP BY mp.id_project, belong_area
+ORDER BY receivedMoney DESC;
+```
 
 #### 区域-月-认购
 
@@ -878,9 +911,53 @@ ORDER BY subscribingAmount DESC;
 
 ![](/etl-docs/img/IMG_1722.PNG)
 
+```sql
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       contractNum,
+       contractAmount,
+       receivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_daily_report
+                     WHERE YEARWEEK(reportDate, 1) = '202128'
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+ORDER BY contractAmount DESC;
+```
+
 #### 项目-周-回款
 
 ![](/etl-docs/img/IMG_1723.PNG)
+
+```sql
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       contractNum,
+       contractAmount,
+       receivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_daily_report
+                     WHERE YEARWEEK(reportDate, 1) = '202128'
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+ORDER BY receivedMoney DESC;
+```
 
 #### 项目-月-认购
 
