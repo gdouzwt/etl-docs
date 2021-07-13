@@ -602,9 +602,144 @@ ORDER BY receivedMoney DESC;
 
 ![](/etl-docs/img/IMG_1709.PNG)
 
+```sql
+SELECT ma.pk_area               areacode,
+       ma.`areaname`            areaname,
+       SUM(a.subscribingNum)    subscribingNum,
+       SUM(a.subscribingAmount) subscribingAmount,
+       SUM(a.contractNum)       contractNum,
+       SUM(a.contractAmount)    contractAmount,
+       SUM(a.contractAmountN)   contractAmountN,
+       SUM(a.contractNumN)      contractNumN,
+       SUM(a.receivedMoney)     receivedMoney,
+       SUM(a.receivedMoneyN)    receivedMoneyN,
+       SUM(a.subscribingAmounN) subscribingAmounN,
+       SUM(a.gonghuoNum)        gonghuoNum,
+       SUM(a.gonghuoAmount)     gonghuoAmount
+FROM (SELECT id_project FROM v_md_projectinfo) e
+         LEFT JOIN (SELECT projectId,
+                           SUM(subscribingNum)      AS subscribingNum,
+                           SUM(subscribingAmount)   AS subscribingAmount,
+                           SUM(contractNum)         AS contractNum,
+                           SUM(contractAmount)      AS contractAmount,
+                           SUM(contractAmount_n)    AS contractAmountN,
+                           SUM(contractNum_n)       AS contractNumN,
+                           SUM(receivedMoney)       AS receivedMoney,
+                           SUM(receivedMoney_n)     AS receivedMoneyN,
+                           SUM(subscribingAmount_n) AS subscribingAmounN,
+                           SUM(gonghuoAmount)       AS gonghuoAmount,
+                           SUM(gonghuoNum)          AS gonghuoNum
+                    FROM jsczb_daily_report
+                    WHERE YEARWEEK(reportDate, 1) = '202128'
+                    GROUP BY projectId) a ON e.id_project = a.projectId
+         LEFT JOIN (SELECT id_project, belong_area, project_name FROM md_projectinfo) d ON e.id_project = d.id_project
+         LEFT JOIN md_area ma ON ma.pk_area = d.belong_area
+GROUP BY ma.pk_area;
+```
+
+```sql
+SELECT vmp.project_name projectName,
+    vmp.project_code projectCode,
+    vmp.id_project idProject,
+    vmp.belong_area belongArea,
+    vmp.belong_provinces belongProvinces,
+    vmp.belong_city belongCity,
+    vma.areaname areaName
+FROM v_md_projectinfo vmp
+    LEFT JOIN v_md_area vma ON vma.areacode = vmp.belong_area
+WHERE project_code IN (
+        'P0001',
+        'P0002',
+        'P0003',
+        'P0004',
+        'P0005',
+        'P0006',
+        'P0007',
+        'P0009',
+        'P0010',
+        'P0011',
+        'P0012',
+        'P0018',
+        'P0019',
+        'P0026',
+        'P0046',
+        'P0048',
+        'P0062',
+        'P0063',
+        'P0064',
+        'P0065',
+        'P0067',
+        'P0071',
+        'P0076',
+        'P0084',
+        'P0085',
+        'P0086',
+        'P0087',
+        'P0089',
+        'P0090',
+        'P0091',
+        'P0093',
+        'P0094',
+        'P0095',
+        'P0096',
+        'P0097',
+        'P0098',
+        'P0099',
+        'P0100',
+        'P0106',
+        'P0109',
+        'P0110',
+        'P0111',
+        'P0112',
+        'P0113',
+        'P0117',
+        'P0118',
+        'P0120',
+        'P0123',
+        'P0124'
+    );
+```
+
+```sql
+SELECT t.md_area_code FROM md_area_uc_code t WHERE t.is_enabled = 1 AND t.uc_code IN ('10001')
+```
+
 #### 区域-周-签约
 
 ![](/etl-docs/img/IMG_1710.PNG)
+
+```sql
+SELECT belong_area  AS areaCode,
+       id_project   AS projectId,
+       project_name AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       targetSubscribingAmount,
+       contractNum,
+       contractAmount,
+       targetContractAmount,
+       receivedMoney,
+       targetReceivedMoney
+FROM v_md_projectinfo mp
+         RIGHT JOIN (SELECT projectId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_daily_report
+                     WHERE YEARWEEK(reportDate, 1) = '202128'
+                     GROUP BY projectId) jmr ON mp.id_project = jmr.projectId
+         LEFT JOIN (SELECT project_id,
+                           IFNULL(SUM(subscribing_amount), 0) AS targetSubscribingAmount,
+                           IFNULL(SUM(contract_amount), 0)    AS targetContractAmount,
+                           IFNULL(SUM(received_money), 0)     AS targetReceivedMoney
+                    FROM jsczb_target_month
+                    WHERE YEARWEEK(`month`, 1) = '202128'
+                    GROUP BY project_id) jtm ON jmr.projectId = jtm.project_id
+GROUP BY mp.id_project, belong_area
+ORDER BY subscribingAmount DESC;
+```
 
 #### 区域-周-回款
 
@@ -715,6 +850,29 @@ ORDER BY receivedMoney DESC;
 #### 项目-周-认购
 
 ![](/etl-docs/img/IMG_1721.PNG)
+
+```sql
+-- 所有业态子项
+SELECT jmr.projectId      AS projectId,
+       bp.productTypeName AS projectName,
+       subscribingNum,
+       subscribingAmount,
+       contractNum,
+       contractAmount,
+       receivedMoney
+FROM bijsc_producttype bp
+         RIGHT JOIN (SELECT projectId,
+                            productTypeId,
+                            IFNULL(SUM(subscribingNum), 0)    AS subscribingNum,
+                            IFNULL(SUM(subscribingAmount), 0) AS subscribingAmount,
+                            IFNULL(SUM(contractNum), 0)       AS contractNum,
+                            IFNULL(SUM(contractAmount), 0)    AS contractAmount,
+                            IFNULL(SUM(receivedMoney), 0)     AS receivedMoney
+                     FROM jsczb_daily_report
+                     WHERE YEARWEEK(reportDate, 1) = '202128'
+                     GROUP BY productTypeId, projectId) jmr ON jmr.productTypeId = bp.productTypetId
+ORDER BY subscribingAmount DESC;
+```
 
 #### 项目-周-签约
 

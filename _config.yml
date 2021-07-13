@@ -24,8 +24,8 @@ github_username:  gdouzwt
 permalink: pretty
 baseurl: "/etl-docs"
 url: "http://test-uipt.seedland.cc"
-
-
+title: "ETL文档整理"
+RSS: true
 # Build settings
 theme: minima
 plugins:
