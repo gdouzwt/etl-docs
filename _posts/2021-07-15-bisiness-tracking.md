@@ -540,6 +540,77 @@ WHERE c.isclosed = 0
   AND c.contractAmount < r.floorprice
   AND c.contractDate >= '2021'
 GROUP BY ma.pk_area, ma.areaname;
+-- 破底-区域-数据明细-月
+SELECT mp.belong_area                                                   areacode,
+       c.projectId                                                      pid,
+       c.projectName                                                    name,
+       sum(1)                                                           qianyue_num,
+       sum(CASE WHEN c.contractAmount < r.floorprice THEN 1 ELSE 0 END) count,
+       sum(r.floorprice - c.contractAmount)                             amount
+FROM bijsc_contractdetail c
+         JOIN v_md_projectinfo mp ON mp.id_project = c.projectId
+         LEFT JOIN bijsc_onsalesroom r ON c.roomid = r.roomid
+         LEFT JOIN bijsc_producttype pt ON r.productType = pt.productTypetId
+WHERE c.isclosed = 0
+  AND c.isDeleted = 0
+  AND pt.productTypeName NOT LIKE '%车%'
+  AND c.contractAmount < r.floorprice
+  AND DATE_FORMAT(c.contractDate, '%Y-%m') = '2021-07'
+GROUP BY c.projectId, c.projectName;
+-- 破底-区域-数据明细-年
+SELECT mp.belong_area                                                   areacode,
+       c.projectId                                                      pid,
+       c.projectName                                                    name,
+       sum(1)                                                           qianyue_num,
+       sum(CASE WHEN c.contractAmount < r.floorprice THEN 1 ELSE 0 END) count,
+       sum(r.floorprice - c.contractAmount)                             amount
+FROM bijsc_contractdetail c
+         JOIN v_md_projectinfo mp ON mp.id_project = c.projectId
+         LEFT JOIN bijsc_onsalesroom r ON c.roomid = r.roomid
+         LEFT JOIN bijsc_producttype pt ON r.productType = pt.productTypetId
+WHERE c.isclosed = 0
+  AND c.isDeleted = 0
+  AND pt.productTypeName NOT LIKE '%车%'
+  AND c.contractAmount < r.floorprice
+  AND DATE_FORMAT(c.contractDate, '%Y') = '2021'
+GROUP BY c.projectId, c.projectName;
+-- 破底-项目-数据明细-月
+SELECT c.projectId                                                      areacode,
+       mp.belong_area                                                   pid,
+       pt.productTypeName                                               name,
+       pt.productTypetId                                                tid,
+       sum(1)                                                           qianyue_num,
+       sum(CASE WHEN c.contractAmount < r.floorprice THEN 1 ELSE 0 END) count,
+       sum(r.floorprice - c.contractAmount)                             amount
+FROM bijsc_contractdetail c
+         JOIN v_md_projectinfo mp ON mp.id_project = c.projectId
+         LEFT JOIN bijsc_onsalesroom r ON c.roomid = r.roomid
+         LEFT JOIN bijsc_producttype pt ON r.productType = pt.productTypetId
+WHERE c.isclosed = 0
+  AND c.isDeleted = 0
+  AND pt.productTypeName NOT LIKE '%车%'
+  AND c.contractAmount < r.floorprice
+  AND DATE_FORMAT(c.contractDate, '%Y-%m') = '2021-07'
+GROUP BY c.projectId, c.projectName, pt.productTypetId;
+
+-- 破底-项目-数据明细-年
+SELECT c.projectId                                                      areacode,
+       mp.belong_area                                                   pid,
+       pt.productTypeName                                               name,
+       pt.productTypetId                                                tid,
+       sum(1)                                                           qianyue_num,
+       sum(CASE WHEN c.contractAmount < r.floorprice THEN 1 ELSE 0 END) count,
+       sum(r.floorprice - c.contractAmount)                             amount
+FROM bijsc_contractdetail c
+         JOIN v_md_projectinfo mp ON mp.id_project = c.projectId
+         LEFT JOIN bijsc_onsalesroom r ON c.roomid = r.roomid
+         LEFT JOIN bijsc_producttype pt ON r.productType = pt.productTypetId
+WHERE c.isclosed = 0
+  AND c.isDeleted = 0
+  AND pt.productTypeName NOT LIKE '%车%'
+  AND c.contractAmount < r.floorprice
+  AND DATE_FORMAT(c.contractDate, '%Y') = '2021'
+GROUP BY c.projectId, c.projectName, pt.productTypetId;
 ```
 
 ##### 滞销存货比
@@ -570,8 +641,104 @@ FROM `v_md_projectinfo` AS vmp
 WHERE LEFT(mh.reportMonth, 4) = '2021'
   AND mh.reportDate = DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d')
 GROUP BY vma.areacode, vma.areaname;
+
+-- 数据明细-区域-月
+-- 先拿到区域代码和名称，下面不重复这部分了
+SELECT pk_area areacode, areaname FROM v_md_area WHERE parentid IS NOT NULL AND dr = 0 ORDER BY sort;
+-- 当月数据
+SELECT vmp.belong_area                                    areacode,
+       mh.projectId                                       pid,
+       vmp.project_name                                   name,
+       IFNULL(sum(mh.cunhuo), 0)         AS               count,
+       IFNULL(sum(mh.12month_cunhuo), 0) AS               amount,
+       IFNULL(sum(mh.12month_cunhuo) / sum(mh.cunhuo), 0) amountRate
+FROM `v_md_projectinfo` AS vmp
+         JOIN jsczb_month_huozhipct AS mh ON mh.projectId = vmp.id_project
+         JOIN bijsc_producttype bp ON bp.productTypetId = mh.productTypeId
+WHERE mh.reportMonth = '2021-07'
+  AND mh.reportDate = DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d')
+GROUP BY mh.projectId
+ORDER BY amountRate;
+-- 项目代号
+SELECT vmp.project_name     projectName,
+       vmp.project_code     projectCode,
+       vmp.id_project       idProject,
+       vmp.belong_area      belongArea,
+       vmp.belong_provinces belongProvinces,
+       vmp.belong_city      belongCity,
+       vma.areaname         areaName
+FROM v_md_projectinfo vmp
+         LEFT JOIN v_md_area vma ON vma.areacode = vmp.belong_area
+WHERE project_code IN
+      (P0001, P0002, P0003, P0004, P0005, P0006, P0007, P0009, P0010, P0011, P0012, P0018, P0019, P0026, P0046, P0048, P0062, P0063, P0064, P0065, P0067, P0071, P0076, P0084, P0085, P0086, P0087, P0089, P0090, P0091, P0093, P0094, P0095, P0096, P0097, P0098, P0099, P0100,
+       P0106, P0109, P0110, P0111, P0112, P0113, P0117, P0118, P0120, P0123, P0124);
+-- 组织架构？
+SELECT t.md_area_code FROM md_area_uc_code t WHERE t.is_enabled = 1 AND t.uc_code IN ('10001');
+
+-- 数据明细-区域-年
+SELECT vmp.belong_area                                    areacode,
+       mh.projectId                                       pid,
+       vmp.project_name                                   name,
+       IFNULL(sum(mh.cunhuo), 0)         AS               count,
+       IFNULL(sum(mh.12month_cunhuo), 0) AS               amount,
+       IFNULL(sum(mh.12month_cunhuo) / sum(mh.cunhuo), 0) amountRate
+FROM `v_md_projectinfo` AS vmp
+         JOIN jsczb_month_huozhipct AS mh ON mh.projectId = vmp.id_project
+         JOIN bijsc_producttype bp ON bp.productTypetId = mh.productTypeId
+WHERE LEFT(mh.reportMonth, 4) = '2021'
+  AND mh.reportDate = DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d')
+GROUP BY mh.projectId
+ORDER BY amountRate;
+-- 其它同上
+
+-- 数据明细-项目-月
+-- 得到项目名和项目id，注意这里仍别名为 areaname 和 areacode，是为了代码处理方便
+SELECT project_name AS areaname, id_project AS areacode
+FROM v_md_projectinfo
+ORDER BY id_project;
+-- 取二级菜单数据
+SELECT mh.projectId                                       areacode,
+       bp.productTypeName                                 name,
+       IFNULL(sum(mh.cunhuo), 0)         AS               count,
+       IFNULL(sum(mh.12month_cunhuo), 0) AS               amount,
+       IFNULL(sum(mh.12month_cunhuo) / sum(mh.cunhuo), 0) amountRate
+FROM jsczb_month_huozhipct AS mh
+         JOIN bijsc_producttype bp ON bp.productTypetId = mh.productTypeId
+WHERE mh.reportMonth = '2021-07'
+  AND mh.reportDate = DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d')
+GROUP BY mh.projectId, bp.productTypetId
+ORDER BY amountRate;
+-- 找到所属关系
+SELECT vmp.project_name     projectName,
+       vmp.project_code     projectCode,
+       vmp.id_project       idProject,
+       vmp.belong_area      belongArea,
+       vmp.belong_provinces belongProvinces,
+       vmp.belong_city      belongCity,
+       vma.areaname         areaName
+FROM v_md_projectinfo vmp
+         LEFT JOIN v_md_area vma ON vma.areacode = vmp.belong_area
+WHERE project_code IN
+      ('P0001', 'P0002', 'P0003', 'P0004', 'P0005', 'P0006', 'P0007', 'P0009', 'P0010', 'P0011', 'P0012', 'P0018', 'P0019', 'P0026', 'P0046', 'P0048', 'P0062', 'P0063', 'P0064', 'P0065', 'P0067', 'P0071', 'P0076', 'P0084', 'P0085', 'P0086', 'P0087', 'P0089', 'P0090', 'P0091', 'P0093', 'P0094', 'P0095', 'P0096', 'P0097', 'P0098', 'P0099', 'P0100',
+       'P0106', 'P0109', 'P0110', 'P0111', 'P0112', 'P0113', 'P0117', 'P0118', 'P0120', 'P0123', 'P0124');
+
+-- 数据明细-项目-年
+-- 其它类似，核心是详细数据
+SELECT mh.projectId                                       areacode,
+       bp.productTypeName                                 name,
+       IFNULL(sum(mh.cunhuo), 0)         AS               count,
+       IFNULL(sum(mh.12month_cunhuo), 0) AS               amount,
+       IFNULL(sum(mh.12month_cunhuo) / sum(mh.cunhuo), 0) amountRate
+FROM jsczb_month_huozhipct AS mh
+         JOIN bijsc_producttype bp ON bp.productTypetId = mh.productTypeId
+WHERE LEFT(mh.reportMonth, 4) = '2021'
+  AND mh.reportDate = DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d')
+GROUP BY mh.projectId, bp.productTypetId
+ORDER BY amountRate;
 ```
 
-
-
 ### 数据明细
+
+> 见占比分析里面 SQL
+
+##### 
