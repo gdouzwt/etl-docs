@@ -42,6 +42,7 @@ future: true
 #
 exclude:
   - run.ps1
+  - run.sh
 #   - .sass-cache/
 #   - .jekyll-cache/
 #   - gemfiles/
