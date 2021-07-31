@@ -740,5 +740,3 @@ ORDER BY amountRate;
 ### 数据明细
 
 > 见占比分析里面 SQL
-
-##### 
