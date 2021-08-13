@@ -1,9 +1,3 @@
----
-layout: post
-title:  "业务跟踪[完]"
-date:   2021-07-15 14:28:52 
----
-
 业务跟踪这个模块数据显示为联动，按月、年维度，接着查看这 9 个小卡片的内容，下方 *占比分析* 和 数据明细会联动，每次都调用3 条 API，对应的 SQL 语句如下：
 
 ![预警汇总-月](/etl-docs/img/warn.gif)
@@ -11,8 +5,10 @@ date:   2021-07-15 14:28:52
 ### 预警汇总
 
 > 按月、年分别给出了 SQL，其中返回结果包含了 ‘套数’(count) 和 ‘金额’(amount)
+> ![](/etl-docs/img/Snipaste_2021-08-13_10-02-59.png)
 
 ```sql
+
 -- 认购未签约-月
 SELECT '认购未签约' name, IFNULL(sum(1), 0) count, IFNULL(sum(t.protocolAmount), 0) amount
 FROM bijsc_subscribingdetail t
@@ -38,7 +34,12 @@ WHERE t.isClosed = 0
   AND DATE_FORMAT(t.subscribingDate, '%Y') = '2021';
 ```
 
+
+
 ---
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-05-53.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-06-46.png)
 
 ```sql
 -- 逾期未签约-月
@@ -66,6 +67,9 @@ WHERE t.isClosed = 0
 
 ---
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-09-42.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-10-28.png)
+
 ```sql
 -- 签约未收款-月
 SELECT '签约未收款' name, IFNULL(SUM(cm.roomNum), 0) AS count, IFNULL(SUM(cm.noReceiveAmount), 0) AS amount
@@ -83,6 +87,9 @@ WHERE LEFT(cm.reportMonth, 4) = '2021'
 ```
 
 ---
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-11-19.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-11-47.png)
 
 ```sql
 -- 逾期未收款-月
@@ -109,6 +116,9 @@ WHERE t.isDeleted = 0
 
 ---
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-12-19.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-12-42.png)
+
 ```sql
 -- 退认购-月
 SELECT '退认购'                                                    name,
@@ -131,6 +141,9 @@ WHERE yc.reportYear = '2021'
 ```
 
 ---
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-13-15.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-13-34.png)
 
 ```sql
 -- 退签约-月
@@ -172,6 +185,11 @@ WHERE c.isDeleted = 0
 
 ---
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-14-59.png)
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-14-11.png)
+
+
 ```sql
 -- 签约首付回款-月
 SELECT '签约首付回款'                                                  name,
@@ -193,6 +211,9 @@ FROM jsczb_year_contractreceivefirst AS crf
 WHERE crf.reportYear = '2021'
   AND crf.reportDate = DATE_FORMAT('2021', '%Y-%m-%d');
 ```
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-16-31.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-17-56.png)
 
 ```sql
 -- 破底-月
@@ -224,6 +245,9 @@ WHERE c.isclosed = 0
 
 ---
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-18-39.png)
+![](/etl-docs/img/Snipaste_2021-08-13_10-19-23.png)
+
 ```sql
 -- 滞销存货比-月
 SELECT '滞销存货比'                                            name,
@@ -247,6 +271,8 @@ WHERE LEFT(mh.reportMonth, 4) = '2021'
 ```
 
 ### 占比分析
+
+![](/etl-docs/img/Snipaste_2021-08-13_09-59-22.png)
 
 ```sql
 -- 认购未签约-月
@@ -288,6 +314,8 @@ ORDER BY amount DESC;
 然后前端计算出占比，按年维度查询也类似，不再重复这部分说明。
 
 ##### 认购未签约-数据明细
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-21-01.png)
 
 ```sql
 -- 数据明细-月
@@ -396,6 +424,8 @@ WHERE project_code IN
 
 ##### 逾期未签约
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-30-54.png)
+
 ```sql
 -- 逾期未签约-月
 SELECT ma.areaname name, ma.pk_area code, sum(1) count, sum(t.protocolAmount) amount
@@ -482,6 +512,8 @@ GROUP BY t.projectId, t.projectName, pt.productTypetId;
 
 ##### 签约未收款
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-32-15.png)
+
 ```sql
 -- 签约未收款-月
 SELECT vmp.belong_area                    AS code,
@@ -511,6 +543,8 @@ GROUP BY vma.areacode, vma.areaname;
 ```
 
 ##### 逾期未收款
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-34-25.png)
 
 ```sql
 -- 逾期未收款-月
@@ -545,6 +579,8 @@ GROUP BY ma.pk_area, ma.areaname;
 
 ##### 退认购
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-33-11.png)
+
 ```sql
 -- 退认购-月
 SELECT vmp.belong_area AS                  code,
@@ -574,6 +610,8 @@ GROUP BY vma.areacode, vma.areaname;
 ```
 
 ##### 退签约
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-35-00.png)
 
 ```sql
 -- 退签约-月
@@ -615,6 +653,8 @@ GROUP BY ma.pk_area, ma.areaname;
 
 ##### 签约首付回款
 
+![](/etl-docs/img/Snipaste_2021-08-13_10-35-41.png)
+
 ```sql
 -- 签约首付回款-月
 SELECT vmp.belong_area AS              code,
@@ -644,6 +684,8 @@ GROUP BY vma.areacode, vma.areaname;
 ```
 
 ##### 破底
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-36-39.png)
 
 ```sql
 -- 破底-月
@@ -757,6 +799,8 @@ GROUP BY c.projectId, c.projectName, pt.productTypetId;
 ```
 
 ##### 滞销存货比
+
+![](/etl-docs/img/Snipaste_2021-08-13_10-37-36.png)
 
 ```sql
 -- 滞销存货比-月
